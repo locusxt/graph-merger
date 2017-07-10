@@ -29,6 +29,7 @@ class Population
         Population(Config* cfg);
         void init();
         void fitness_step();
+        void ratio_step();
         void crossover_step();
         void mutate_step();
         bool check_limit();

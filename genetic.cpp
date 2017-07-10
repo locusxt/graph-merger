@@ -3,6 +3,7 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#define INF 10000000
 using namespace std;
 
 void Individual::init()
@@ -39,6 +40,7 @@ Population::Population(Config* conf)
     int sz = conf->individual_num;
     this->cfg = conf;
     idv_list = new vector<Individual>;
+    this->evolve_cnt = 0;
     for(int i = 0; i < sz; ++i)
         idv_list->push_back(Individual());
 }
@@ -55,7 +57,7 @@ void Population::init()
 //???
 bool cmp_idv(Individual const &a, Individual const &b)
 {
-    return a.fitness < b.fitness;
+    return a.fitness > b.fitness;
 }
 
 void Population::sort_idv_list(vector<Individual> * l)
@@ -66,20 +68,26 @@ void Population::sort_idv_list(vector<Individual> * l)
 void Population::fitness_step()
 {
     int sz = cfg->individual_num;
-    float fitness_sum = 0.0;
     for (int i = 0; i < sz; ++i)
-    {
         (*idv_list)[i].cal_fitness();
-        fitness_sum += (*idv_list)[i].fitness;
-    }
-    //目前ratio按fitness所占比例分配
-    for (int i = 0; i < sz; ++i)
-        (*idv_list)[i].ratio = (*idv_list)[i].fitness / fitness_sum;
+    // //目前ratio按fitness所占比例分配
+    // for (int i = 0; i < sz; ++i)
+    //     (*idv_list)[i].ratio = (*idv_list)[i].fitness / fitness_sum;
 
     sort_idv_list(idv_list);
     // sort(idv_list.begin(), idv_list.end(), cmp_idv);
     best_idv = (*idv_list)[0];
     return ;
+}
+
+void Population::ratio_step()
+{
+    int sz = cfg->individual_num;
+    float fitness_sum = 0.0;
+    for (int i = 0; i < sz; ++i)
+        fitness_sum += (*idv_list)[i].fitness;
+    for (int i = 0; i < sz; ++i)
+        (*idv_list)[i].ratio = (*idv_list)[i].fitness / fitness_sum;
 }
 
 int Population::select()
@@ -124,4 +132,28 @@ void Population::mutate_step()
             (*idv_list)[i].mutate();
     }
     return ;
+}
+
+bool Population::check_limit()
+{
+    return evolve_cnt < cfg->evolve_limit;
+}
+
+void Population::evolve()
+{
+    init();//初代种群
+    fitness_step();
+    //print info
+    while(check_limit())
+    {
+        ++evolve_cnt;
+        ratio_step();
+        crossover_step();
+        mutate_step();
+        
+        idv_list->push_back(best_idv);
+        fitness_step();
+        idv_list->pop_back();
+        //print info
+    }
 }

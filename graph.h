@@ -81,9 +81,11 @@ class MergedGraph
 {
     public:
         // int mid;
-        vector<Cluster*> cluster_list;
-        vector<Link*> link_list;
+        vector<Cluster> cluster_list;
+        vector<Link> link_list;
 
         // MergedGraph(int id):mid(id){}
         int cal_node_x_edge();
+
+        void init(string folder_name);
 };
