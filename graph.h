@@ -38,16 +38,15 @@ class SingleGraph
         bool directed;
         bool typed;
         int gid;
-        string name;
+        string gname;
 
-        int node_num;
-        int edge_num;
+
         vector<Node> node_list;
         vector<Edge> edge_list;
         
-        SingleGraph(bool d, bool t, int id, string n):directed(d), typed(t), gid(id), name(n)
+        SingleGraph(bool d, bool t, int id, string n):directed(d), typed(t), gid(id), gname(n)
         {
-            node_num = edge_num = 0;
+            // node_num = edge_num = 0;
         }
 
         void init_from_json(string fname);//从json文件中载入

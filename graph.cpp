@@ -20,8 +20,38 @@ Json::Value get_json_from_file(string fname)
 
 void SingleGraph::init_from_json(string fname)
 {
+    node_list.clear();
+    edge_list.clear();
+
     Json::Value root = get_json_from_file(fname);
-    
+    Json::Value nodes = root["nodes"];
+    int node_sz = nodes.size();
+    for (int i = 0; i < node_sz; ++i)
+    {
+        int nid = nodes[i]["nid"].asInt();
+        string type = nodes[i]["type"].asString();
+        string name = nodes[i]["name"].asString();
+
+        node_list.push_back(Node(nid, type, name, this));
+    }
+
+    Json::Value edges = root["edges"];
+    int edge_sz = edges.size();
+    for (int i = 0; i < edge_sz; ++i)
+    {
+        int eid = edges[i]["eid"].asInt();
+        string type = edges[i]["type"].asString();
+        string name = edges[i]["name"].asString();
+        int sid = edges[i]["source"].asInt();
+        int tid = edges[i]["target"].asInt();
+
+        edge_list.push_back(Edge(eid, &(node_list[sid]), &(node_list[tid]), type, name, this));
+    }
+
+    directed = root["directed"].asBool();
+    typed = root["typed"].asBool();
+    gname = root["gname"].asString();
+    gid = root["gid"].asInt();
     return;
 }
 
