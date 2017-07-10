@@ -44,7 +44,8 @@ void SingleGraph::init_from_json(string fname)
 	return;
 }
 
-void MergedGraph::init(string folder_name) {}
+//依据SingleGraph数组，初始化
+void MergedGraph::init(vector<SingleGraph *> sgs) {}
 
 //用于link_list的排序
 bool cmp_lk(Link const &l1, Link const &l2)
