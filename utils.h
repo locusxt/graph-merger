@@ -6,6 +6,7 @@
 using namespace std;
 
 float rand01();
+int rand0n(int n);
 
 Json::Value get_json_from_file(string fname);
 

@@ -1,4 +1,5 @@
 #include <cstring>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -65,9 +66,12 @@ class Cluster
 {
   public:
 	int cid;
+	string type;
 	MergedGraph *graph;
 	vector<Node *> node_list; //融合的点的集合
 
+	Cluster() {}
+	Cluster(string tp) : type(tp) {}
 	Cluster(int id, MergedGraph *g) : cid(id), graph(g) {}
 };
 
@@ -93,9 +97,11 @@ class MergedGraph
 	// int mid;
 	vector<Cluster> cluster_list;
 	vector<Link> link_list;
+	map<string, int> type_cnt;   //各type节点的个数
+	map<string, int> type_start; //各type，在cluster_list中开始的位置
 
 	// MergedGraph(int id):mid(id){}
 	int cal_node_x_edge();
 
-	void init(vector<SingleGraph *> sgs);
+	void init(vector<SingleGraph> *graphs);
 };

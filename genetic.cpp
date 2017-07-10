@@ -6,9 +6,9 @@
 #define INF 10000000
 using namespace std;
 
-void Individual::init()
+void Individual::init(vector<SingleGraph> *graphs)
 {
-	// do nothing
+	mg.init(graphs);
 	return;
 }
 
@@ -57,7 +57,7 @@ void Population::init()
 
 	for (int i = 0; i < i_sz; ++i)
 	{
-		(*idv_list)[i].init();
+		(*idv_list)[i].init(&graphs);
 	}
 }
 

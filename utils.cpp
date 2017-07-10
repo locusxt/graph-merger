@@ -10,6 +10,12 @@ using namespace std;
 //返回一个01之间的随机小数
 float rand01() { return rand() / (float)RAND_MAX; }
 
+int rand0n(int n)
+{
+	assert(n > 0);
+	return rand() / n;
+}
+
 Json::Value get_json_from_file(string fname)
 {
 	Json::Reader reader;

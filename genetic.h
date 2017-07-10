@@ -10,10 +10,10 @@ class Individual
 	float fitness;
 	float ratio;
 
-	void init();						   //生成初代种群
-	void cal_fitness();					   //计算适应度
-	Individual crossover(Individual *idv); //交叉
-	void mutate();						   //变异
+	void init(vector<SingleGraph> *graphs); //生成初代种群
+	void cal_fitness();						//计算适应度
+	Individual crossover(Individual *idv);  //交叉
+	void mutate();							//变异
 	void print_info();
 };
 
