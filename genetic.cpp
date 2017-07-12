@@ -9,9 +9,9 @@
 #define MAXN 100
 using namespace std;
 
-void Individual::init(vector<SingleGraph> *graphs)
+void Individual::init(vector<SingleGraph> *graphs_p)
 {
-	mg.init(graphs);
+	mg.init(graphs_p);
 	return;
 }
 
@@ -23,7 +23,7 @@ void Individual::cal_fitness()
 }
 
 const int size = MAXN;
-bool map[size][size]; // 二分图的相等子图, map[i][j] = true 代表Xi与Yj有边
+bool mymap[size][size];		 // 二分图的相等子图, mymap[i][j] = true 代表Xi与Yj有边
 bool xckd[size], yckd[size]; // 标记在一次DFS中，Xi与Yi是否在交错树上
 int match[size];			 // 保存匹配信息，其中i为Y中的顶点标号，match[i]为X中顶点标号
 
@@ -49,9 +49,9 @@ void KM_Perfect_Match(const int n, const int edge[][size])
 			for (j = 0; j < n; j++)
 			{
 				if (lx[i] + ly[j] == edge[i][j])
-					map[i][j] = true;
+					mymap[i][j] = true;
 				else
-					map[i][j] = false;
+					mymap[i][j] = false;
 			}
 		}
 		// 匹配过程
@@ -100,7 +100,7 @@ bool DFS(int p, const int n)
 	int i;
 	for (i = 0; i < n; i++)
 	{
-		if (!yckd[i] && map[p][i])
+		if (!yckd[i] && mymap[p][i])
 		{
 			yckd[i] = true;
 			int t = match[i];
@@ -115,7 +115,7 @@ bool DFS(int p, const int n)
 	return false;
 }
 
-Individual Individual::crossover(Individual *idv)
+Individual Individual::crossover(Individual *idv_p)
 {
 	int n = mg.cluster_list.size();
 	int edge[size][size]; // 连接Xi与Yj的边的权值
@@ -124,21 +124,21 @@ Individual Individual::crossover(Individual *idv)
 	for (int i = 0; i < n; ++i)
 	{
 		string type = mg.cluster_list[i].type;
-		int start = idv->mg.type_start[type]; // idv中该type的开始位置
-		int cnt = idv->mg.type_cnt[type];
+		int start = idv_p->mg.type_start[type]; // idv中该type的开始位置
+		int cnt = idv_p->mg.type_cnt[type];
 
 		for (int j = 0; j < cnt; ++j)
 		{
 			int tmp = start + j;
 			int sz1 = mg.cluster_list[i].node_list.size();
-			int sz2 = idv->mg.cluster_list[j].node_list.size();
+			int sz2 = idv_p->mg.cluster_list[j].node_list.size();
 			int same_cnt = 0;
 			for (int k = 0; k < sz1; ++k)
 			{
 				for (int l = 0; l < sz2; ++l)
 				{
 					if (mg.cluster_list[i].node_list[k] ==
-						idv->mg.cluster_list[j].node_list[l])
+						idv_p->mg.cluster_list[j].node_list[l])
 						++same_cnt;
 				}
 			}
@@ -157,42 +157,42 @@ Individual Individual::crossover(Individual *idv)
 
 void Individual::mutate()
 {
-	MergedGraph *merged_graph = &mg;
-	int c_sz = merged_graph->cluster_list.size();
-	Cluster *c = &(merged_graph->cluster_list[rand0n(c_sz)]);
-	int n_sz = c->node_list.size();
+	MergedGraph *merged_graph_p = &mg;
+	int c_sz = merged_graph_p->cluster_list.size();
+	Cluster *c_p = &(merged_graph_p->cluster_list[rand0n(c_sz)]);
+	int n_sz = c_p->node_list.size();
 
 	int pos = rand0n(n_sz);
-	Node *n = c->node_list[pos];
-	c->node_list.erase(c->node_list.begin() + pos);
+	Node *n_p = c_p->node_list[pos];
+	c_p->node_list.erase(c_p->node_list.begin() + pos);
 	// links
 
-	string type = c->type; // check
-	int tp_cnt = merged_graph->type_cnt[type];
-	int tp_start = merge_graph->type_start[type];
+	string type = c_p->type; // check
+	int tp_cnt = merged_graph_p->type_cnt[type];
+	int tp_start = merged_graph_p->type_start[type];
 
-	Cluster *new_c = &(merged_graph->cluster_list[tp_start + rand0n(tp_cnt)]);
-	new_c->node_list.push_back(n);
+	Cluster *new_c_p = &(merged_graph_p->cluster_list[tp_start + rand0n(tp_cnt)]);
+	new_c_p->node_list.push_back(n_p);
 
 	return;
 }
 
 void Individual::print_info() { cout << fitness << endl; }
 
-Population::Population(Config *conf)
+Population::Population(Config *conf_p)
 {
-	int sz = conf->individual_num;
-	this->cfg = conf;
-	idv_list = new vector<Individual>;
+	int sz = conf_p->individual_num;
+	this->cfg_p = conf_p;
+	idv_list_p = new vector<Individual>;
 	this->evolve_cnt = 0;
 	for (int i = 0; i < sz; ++i)
-		idv_list->push_back(Individual());
+		idv_list_p->push_back(Individual());
 }
 
 void Population::init()
 {
-	int i_sz = cfg->individual_num;
-	string g_dir = cfg->graph_dir;
+	int i_sz = cfg_p->individual_num;
+	string g_dir = cfg_p->graph_dir;
 
 	//初始化SingleGraph
 	graphs.clear();
@@ -207,7 +207,7 @@ void Population::init()
 
 	for (int i = 0; i < i_sz; ++i)
 	{
-		(*idv_list)[i].init(&graphs);
+		(*idv_list_p)[i].init(&graphs);
 	}
 }
 
@@ -217,44 +217,44 @@ bool cmp_idv(Individual const &a, Individual const &b)
 	return a.fitness > b.fitness;
 }
 
-void Population::sort_idv_list(vector<Individual> *l)
+void Population::sort_idv_list(vector<Individual> *l_p)
 {
-	sort(l->begin(), l->end(), cmp_idv);
+	sort(l_p->begin(), l_p->end(), cmp_idv);
 }
 
 void Population::fitness_step()
 {
-	int sz = cfg->individual_num;
+	int sz = cfg_p->individual_num;
 	for (int i = 0; i < sz; ++i)
-		(*idv_list)[i].cal_fitness();
+		(*idv_list_p)[i].cal_fitness();
 	// //目前ratio按fitness所占比例分配
 	// for (int i = 0; i < sz; ++i)
 	//     (*idv_list)[i].ratio = (*idv_list)[i].fitness / fitness_sum;
 
-	sort_idv_list(idv_list);
+	sort_idv_list(idv_list_p);
 	// sort(idv_list.begin(), idv_list.end(), cmp_idv);
-	best_idv = (*idv_list)[0];
+	best_idv = (*idv_list_p)[0];
 	return;
 }
 
 void Population::ratio_step()
 {
-	int sz = cfg->individual_num;
+	int sz = cfg_p->individual_num;
 	float fitness_sum = 0.0;
 	for (int i = 0; i < sz; ++i)
-		fitness_sum += (*idv_list)[i].fitness;
+		fitness_sum += (*idv_list_p)[i].fitness;
 	for (int i = 0; i < sz; ++i)
-		(*idv_list)[i].ratio = (*idv_list)[i].fitness / fitness_sum;
+		(*idv_list_p)[i].ratio = (*idv_list_p)[i].fitness / fitness_sum;
 }
 
 int Population::select()
 {
-	int sz = cfg->individual_num;
+	int sz = cfg_p->individual_num;
 	float rand_num = rand01();
 	float sum_num = 0.0;
 	for (int i = 0; i < sz; ++i)
 	{
-		sum_num += (*idv_list)[i].fitness;
+		sum_num += (*idv_list_p)[i].fitness;
 		if (sum_num >= rand_num)
 		{
 			return i;
@@ -266,33 +266,33 @@ int Population::select()
 
 void Population::crossover_step()
 {
-	int sz = cfg->individual_num;
-	vector<Individual> *new_idv_list = new vector<Individual>;
+	int sz = cfg_p->individual_num;
+	vector<Individual> *new_idv_list_p = new vector<Individual>;
 	// new_idv_list->push_back((*idv_list)[0]);//保存最优个体
 	for (int i = 0; i < sz; ++i)
 	{
-		Individual *a = &(*idv_list)[select()];
-		Individual *b = &(*idv_list)[select()];
-		new_idv_list->push_back(a->crossover(b));
+		Individual *a_p = &(*idv_list_p)[select()];
+		Individual *b_p = &(*idv_list_p)[select()];
+		new_idv_list_p->push_back(a_p->crossover(b_p));
 	}
 	// sort_idv_list(&new_idv_list);
-	delete (idv_list);
-	idv_list = new_idv_list; //更新种群
+	delete (idv_list_p);
+	idv_list_p = new_idv_list_p; //更新种群
 }
 
 void Population::mutate_step()
 {
-	int sz = cfg->individual_num;
+	int sz = cfg_p->individual_num;
 	//最优个体不变异
 	for (int i = 0; i < sz; ++i)
 	{
-		if (rand01() < cfg->mutate_ratio)
-			(*idv_list)[i].mutate();
+		if (rand01() < cfg_p->mutate_ratio)
+			(*idv_list_p)[i].mutate();
 	}
 	return;
 }
 
-bool Population::check_limit() { return evolve_cnt < cfg->evolve_limit; }
+bool Population::check_limit() { return evolve_cnt < cfg_p->evolve_limit; }
 
 void Population::evolve()
 {
@@ -306,9 +306,9 @@ void Population::evolve()
 		crossover_step();
 		mutate_step();
 
-		idv_list->push_back(best_idv);
+		idv_list_p->push_back(best_idv);
 		fitness_step();
-		idv_list->pop_back();
+		idv_list_p->pop_back();
 		// print info
 	}
 }

@@ -11,12 +11,12 @@ class Node
 {
   public:
 	int nid;
-	SingleGraph *graph;
+	SingleGraph *graph_p;
 	string type;
 	string name;
 
 	Node(int id, string tp, string n, SingleGraph *g)
-		: nid(id), type(tp), name(n), graph(g)
+		: nid(id), type(tp), name(n), graph_p(g)
 	{
 	}
 };
@@ -25,14 +25,14 @@ class Edge
 {
   public:
 	int eid;
-	Node *source;
-	Node *target;
-	SingleGraph *graph;
+	Node *source_p;
+	Node *target_p;
+	SingleGraph *graph_p;
 	string type;
 	string name;
 
 	Edge(int id, Node *s, Node *t, string tp, string n, SingleGraph *g)
-		: eid(id), source(s), target(t), type(tp), name(n), graph(g)
+		: eid(id), source_p(s), target_p(t), type(tp), name(n), graph_p(g)
 	{
 	}
 };
@@ -67,25 +67,25 @@ class Cluster
   public:
 	int cid;
 	string type;
-	MergedGraph *graph;
+	MergedGraph *graph_p;
 	vector<Node *> node_list; //融合的点的集合
 
 	Cluster() {}
 	Cluster(string tp) : type(tp) {}
-	Cluster(int id, MergedGraph *g) : cid(id), graph(g) {}
+	Cluster(int id, MergedGraph *g) : cid(id), graph_p(g) {}
 };
 
 class Link
 {
   public:
 	int lid; //在link_list中的编号
-	MergedGraph *graph;
-	Edge *edge;		 //对应的边
-	Cluster *source; //起点的cluster
-	Cluster *target;
+	MergedGraph *graph_p;
+	Edge *edge_p;	  //对应的边
+	Cluster *source_p; //起点的cluster
+	Cluster *target_p;
 
 	Link(int id, MergedGraph *g, Edge *e, Cluster *s, Cluster *t)
-		: lid(id), graph(g), source(s), target(t)
+		: lid(id), graph_p(g), edge_p(e), source_p(s), target_p(t)
 	{
 	}
 };
@@ -103,5 +103,5 @@ class MergedGraph
 	// MergedGraph(int id):mid(id){}
 	int cal_node_x_edge();
 
-	void init(vector<SingleGraph> *graphs);
+	void init(vector<SingleGraph> *graphs_p);
 };
