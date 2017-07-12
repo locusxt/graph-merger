@@ -88,10 +88,13 @@ void MergedGraph::init(vector<SingleGraph> *graphs_p)
 	int c_sz = cluster_list.size();
 	for (int i = 0; i < g_sz; ++i)
 	{
-		int *occupy_p = new int(c_sz);
-		memset(occupy_p, 0, sizeof(occupy_p));
+		int *occupy_p = new int(c_sz);		 //记录每个cluster中，分配了当前图中哪个点
+		map<Node *, Cluster *> node_cluster; //记录每个点，分配进了哪一个cluster中
+		memset(occupy_p, 0, sizeof(int) * c_sz);
+
 		vector<Node> *node_list_p = &((*graphs_p)[i].node_list);
 		int n_sz = node_list_p->size();
+		//将当前图中每个点，随机分配到cluster中
 		for (int j = 0; j < n_sz; ++j)
 		{
 			string type = (*node_list_p)[j].type;
@@ -104,11 +107,20 @@ void MergedGraph::init(vector<SingleGraph> *graphs_p)
 				if (occupy_p[start + tmp])
 					continue;
 				occupy_p[start + tmp] = j + 1;
+
 				Cluster *c_p = &(cluster_list[start + tmp]);
+				node_cluster[&((*node_list_p)[j])] = c_p;
 				c_p->node_list.push_back(&((*node_list_p)[j]));
 			}
 		}
-		//根据occupy_p，初始化link_list
+		//根据node_cluster，初始化link_list
+		vector<Edge> *edge_list_p = &((*graphs_p)[i].edge_list);
+		int e_sz = edge_list_p->size();
+		for (int j = 0; j < e_sz; ++j)
+		{
+			Edge *e_p = &((*edge_list_p)[j]);
+			link_list.push_back(Link(this, e_p, node_cluster[e_p->source_p], node_cluster[e_p->target_p]));
+		}
 	}
 }
 
