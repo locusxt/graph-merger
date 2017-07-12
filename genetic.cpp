@@ -22,6 +22,7 @@ void Individual::cal_fitness()
 	return;
 }
 
+//以下是模板
 const int size = MAXN;
 bool mymap[size][size];		 // 二分图的相等子图, mymap[i][j] = true 代表Xi与Yj有边
 bool xckd[size], yckd[size]; // 标记在一次DFS中，Xi与Yi是否在交错树上
@@ -157,13 +158,14 @@ Individual Individual::crossover(Individual *idv_p)
 
 void Individual::mutate()
 {
+	//将Node随机移动到另一个Cluster
 	MergedGraph *merged_graph_p = &mg;
 	int c_sz = merged_graph_p->cluster_list.size();
-	Cluster *c_p = &(merged_graph_p->cluster_list[rand0n(c_sz)]);
+	Cluster *c_p = &(merged_graph_p->cluster_list[rand0n(c_sz)]); //随机选中一个Cluster
 	int n_sz = c_p->node_list.size();
 
 	int pos = rand0n(n_sz);
-	Node *n_p = c_p->node_list[pos];
+	Node *n_p = c_p->node_list[pos]; //随机选中一个Node
 	c_p->node_list.erase(c_p->node_list.begin() + pos);
 	// links
 
@@ -171,9 +173,23 @@ void Individual::mutate()
 	int tp_cnt = merged_graph_p->type_cnt[type];
 	int tp_start = merged_graph_p->type_start[type];
 
+	//随机选中一个新的类型匹配的Cluster
 	Cluster *new_c_p = &(merged_graph_p->cluster_list[tp_start + rand0n(tp_cnt)]);
 	new_c_p->node_list.push_back(n_p);
 
+	//更新link_list
+	vector<Link> *link_list_p = &(merged_graph_p->link_list);
+	int l_sz = link_list_p->size();
+	//遍历link_list找到，并修改的Node相关的Link
+	for (int i = 0; i < l_sz; ++i)
+	{
+		Link *l_p = &((*link_list_p)[i]);
+		Edge *e_p = l_p->edge_p; //Link对应的Edge
+		if (e_p->source_p == n_p)
+			l_p->source_p = new_c_p;
+		else if (e_p->target_p == n_p)
+			l_p->target_p = new_c_p;
+	}
 	return;
 }
 
